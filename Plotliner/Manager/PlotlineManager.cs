@@ -67,6 +67,12 @@ namespace Plotliner.Manager
 
         public void updateTextBox(int index, string text)
         {
+            if(text == "")
+            {
+                textBoxes[index].Text = textBoxes[index].Text.Remove(textBoxes[index].Text.Length - 1);
+                return;
+            }
+
             textBoxes[index].Text += text;
         }
 
@@ -139,7 +145,7 @@ namespace Plotliner.Manager
                     if(focus.Text.Length < 1)
                         return;
 
-                    //text = text.Remove(text.Length - 1);
+                    network.sendMessage(1, textBoxes.IndexOf(focus), "");
                     return;
                 }
                 if(args.Key == Keys.Enter)
@@ -150,6 +156,8 @@ namespace Plotliner.Manager
 
                 if(args.Character.HasValue)
                 {
+                    Console.WriteLine(":" + args.Character.Value + ":");
+                    Console.WriteLine(":" + "" + ":");
                     network.sendMessage(1, textBoxes.IndexOf(focus), args.Character.Value.ToString());
                 }
             }
