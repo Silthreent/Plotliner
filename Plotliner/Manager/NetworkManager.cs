@@ -48,7 +48,15 @@ namespace Plotliner.Manager
                         switch(message.ReadByte())
                         {
                             case 0:
+                                Console.WriteLine("Server Recieved: New Text Box");
                                 messageClients(0, message.ReadInt32(), message.ReadInt32());
+                                break;
+                            case 1:
+                                Console.WriteLine("Server Recieved: TextBox Text Update");
+                                var data1 = message.ReadInt32();
+                                var data2 = message.ReadString();
+                                Console.WriteLine(data1 + " : " + data2);
+                                messageClients(1, data1, data2);
                                 break;
                         }
                         break;
@@ -76,7 +84,15 @@ namespace Plotliner.Manager
                         switch(message.ReadByte())
                         {
                             case 0:
+                                Console.WriteLine("Client Recieved: New Text Box");
                                 plotline.createTextBox(message.ReadInt32(), message.ReadInt32());
+                                break;
+                            case 1:
+                                Console.WriteLine("Client Recieved: TextBox Text Update");
+                                var data1 = message.ReadInt32();
+                                var data2 = message.ReadString();
+                                Console.WriteLine(data1 + " : " + data2);
+                                plotline.updateTextBox(data1, data2);
                                 break;
                         }
                         break;
@@ -102,12 +118,31 @@ namespace Plotliner.Manager
             client.SendMessage(message, NetDeliveryMethod.ReliableOrdered);
         }
 
+        public void sendMessage(byte msg, int index, string character)
+        {
+            var message = client.CreateMessage();
+            message.Write(msg);
+            message.Write(index);
+            message.Write(character);
+            //message.Write(uppercase);
+            client.SendMessage(message, NetDeliveryMethod.ReliableOrdered);
+        }
+
         void messageClients(byte msg, int arg1, int arg2)
         {
             var message = server.CreateMessage();
             message.Write(msg);
             message.Write(arg1);
             message.Write(arg2);
+            server.SendMessage(message, server.Connections, NetDeliveryMethod.ReliableOrdered, 0);
+        }
+
+        void messageClients(byte msg, int index, string character)
+        {
+            var message = server.CreateMessage();
+            message.Write(msg);
+            message.Write(index);
+            message.Write(character);
             server.SendMessage(message, server.Connections, NetDeliveryMethod.ReliableOrdered, 0);
         }
 
