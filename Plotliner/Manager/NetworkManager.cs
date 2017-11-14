@@ -71,6 +71,20 @@ namespace Plotliner.Manager
             }
         }
 
+        public void sendMessage()
+        {
+            var message = client.CreateMessage();
+            message.Write("Test");
+            client.SendMessage(message, NetDeliveryMethod.ReliableOrdered);
+        }
+
+        void messageClients(string msg)
+        {
+            var message = server.CreateMessage();
+            message.Write(msg);
+            server.SendMessage(message, server.Connections, NetDeliveryMethod.ReliableOrdered, 0);
+        }
+
         public void createServer(int port = 12345)
         {
             Console.WriteLine("Creating Server...");
