@@ -44,6 +44,12 @@ namespace Plotliner.Entities
 
             return false;
         }
+        
+        public void updatePosition(int x, int y)
+        {
+            position.X = x;
+            position.Y = y;
+        }
 
         public string Text
         {

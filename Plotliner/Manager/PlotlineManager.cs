@@ -37,7 +37,9 @@ namespace Plotliner.Manager
 
             gameRef.Mouse.MouseClicked += onMouseClick;
             gameRef.Mouse.MouseDoubleClicked += onMouseDoubleClick;
+            gameRef.Mouse.MouseDragStart += onMouseDragStart;
             gameRef.Mouse.MouseDrag += onMouseDrag;
+            gameRef.Mouse.MouseDragEnd += onMouseDragEnd;
         }
 
         public void draw(SpriteBatch spriteBatch)
@@ -71,6 +73,11 @@ namespace Plotliner.Manager
             }
 
             textBoxes[index].Text += text;
+        }
+
+        public void updateTextBox(int index, int x, int y)
+        {
+            textBoxes[index].updatePosition(x, y);
         }
 
         TextBox checkBoxClick()
@@ -160,12 +167,31 @@ namespace Plotliner.Manager
             }
         }
 
+        void onMouseDragStart(object sender, MouseEventArgs args)
+        {
+            TextBox box = checkBoxClick();
+            if(box != null)
+            {
+                dragging = box;
+            }
+        }
+
         void onMouseDrag(object sender, MouseEventArgs args)
         {
             if(dragging == null)
             {
                 camera.Position -= args.DistanceMoved;
             }
+            else
+            {
+                Point world = camera.ToWorld(Mouse.GetState().Position.ToVector2()).ToPoint();
+                network.sendMessage(2, textBoxes.IndexOf(dragging), world.X, world.Y);
+            }
+        }
+
+        void onMouseDragEnd(object sender, MouseEventArgs args)
+        {
+            dragging = null;
         }
     }
 }

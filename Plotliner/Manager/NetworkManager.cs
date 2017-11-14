@@ -53,10 +53,11 @@ namespace Plotliner.Manager
                                 break;
                             case 1:
                                 Console.WriteLine("Server Recieved: TextBox Text Update");
-                                var data1 = message.ReadInt32();
-                                var data2 = message.ReadString();
-                                Console.WriteLine(data1 + " : " + data2);
-                                messageClients(1, data1, data2);
+                                messageClients(1, message.ReadInt32(), message.ReadString());
+                                break;
+                            case 2:
+                                Console.WriteLine("Server Recieved: Update TextBox Position");
+                                messageClients(2, message.ReadInt32(), message.ReadInt32(), message.ReadInt32());
                                 break;
                         }
                         break;
@@ -89,10 +90,11 @@ namespace Plotliner.Manager
                                 break;
                             case 1:
                                 Console.WriteLine("Client Recieved: TextBox Text Update");
-                                var data1 = message.ReadInt32();
-                                var data2 = message.ReadString();
-                                Console.WriteLine(data1 + " : " + data2);
-                                plotline.updateTextBox(data1, data2);
+                                plotline.updateTextBox(message.ReadInt32(), message.ReadString());
+                                break;
+                            case 2:
+                                Console.WriteLine("Client Recieved: Update TextBox Position");
+                                plotline.updateTextBox(message.ReadInt32(), message.ReadInt32(), message.ReadInt32());
                                 break;
                         }
                         break;
@@ -128,6 +130,16 @@ namespace Plotliner.Manager
             client.SendMessage(message, NetDeliveryMethod.ReliableOrdered);
         }
 
+        public void sendMessage(byte msg, int index, int arg1, int arg2)
+        {
+            var message = client.CreateMessage();
+            message.Write(msg);
+            message.Write(index);
+            message.Write(arg1);
+            message.Write(arg2);
+            client.SendMessage(message, NetDeliveryMethod.ReliableOrdered);
+        }
+
         void messageClients(byte msg, int arg1, int arg2)
         {
             var message = server.CreateMessage();
@@ -143,6 +155,16 @@ namespace Plotliner.Manager
             message.Write(msg);
             message.Write(index);
             message.Write(character);
+            server.SendMessage(message, server.Connections, NetDeliveryMethod.ReliableOrdered, 0);
+        }
+
+        void messageClients(byte msg, int index, int arg1, int arg2)
+        {
+            var message = server.CreateMessage();
+            message.Write(msg);
+            message.Write(index);
+            message.Write(arg1);
+            message.Write(arg2);
             server.SendMessage(message, server.Connections, NetDeliveryMethod.ReliableOrdered, 0);
         }
 
