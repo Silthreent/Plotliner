@@ -82,7 +82,6 @@ namespace Plotliner
             keyboard.Update(gameTime);
 
             network.update();
-            plotline.update(gameTime);
         }
 
         /// <summary>

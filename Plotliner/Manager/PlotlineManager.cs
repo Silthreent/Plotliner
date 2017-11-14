@@ -21,6 +21,7 @@ namespace Plotliner.Manager
         List<TextBox> textBoxes;
 
         TextBox focus;
+        TextBox dragging;
 
         public PlotlineManager(Game1 gameRef, NetworkManager network)
         {
@@ -36,11 +37,7 @@ namespace Plotliner.Manager
 
             gameRef.Mouse.MouseClicked += onMouseClick;
             gameRef.Mouse.MouseDoubleClicked += onMouseDoubleClick;
-        }
-
-        public void update(GameTime gameTime)
-        {
-
+            gameRef.Mouse.MouseDrag += onMouseDrag;
         }
 
         public void draw(SpriteBatch spriteBatch)
@@ -91,28 +88,6 @@ namespace Plotliner.Manager
             return null;
         }
 
-        void onMouseClick(object sender, MouseEventArgs args)
-        {
-            TextBox box = checkBoxClick();
-            if(box == null)
-            {
-                focus = null;
-            }
-        }
-
-        void onMouseDoubleClick(object sender, MouseEventArgs args)
-        {
-            TextBox box = checkBoxClick();
-            if(box != null)
-            {
-                focus = box;
-            }
-            else
-            {
-                focus = null;
-            }
-        }
-
         void onKeyReleased(object sender, KeyboardEventArgs args)
         {
             if(focus != null)
@@ -160,6 +135,36 @@ namespace Plotliner.Manager
                     Console.WriteLine(":" + "" + ":");
                     network.sendMessage(1, textBoxes.IndexOf(focus), args.Character.Value.ToString());
                 }
+            }
+        }
+
+        void onMouseClick(object sender, MouseEventArgs args)
+        {
+            TextBox box = checkBoxClick();
+            if(box == null)
+            {
+                focus = null;
+            }
+        }
+
+        void onMouseDoubleClick(object sender, MouseEventArgs args)
+        {
+            TextBox box = checkBoxClick();
+            if(box != null)
+            {
+                focus = box;
+            }
+            else
+            {
+                focus = null;
+            }
+        }
+
+        void onMouseDrag(object sender, MouseEventArgs args)
+        {
+            if(dragging == null)
+            {
+                camera.Position -= args.DistanceMoved;
             }
         }
     }
