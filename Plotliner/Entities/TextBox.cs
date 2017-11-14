@@ -11,6 +11,7 @@ namespace Plotliner.Entities
     class TextBox
     {
         Texture2D rect;
+        string text;
         Point position;
 
         public TextBox(int x, int y, Game1 gameRef)

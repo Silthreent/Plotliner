@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.Input.InputListeners;
 using Plotliner.Manager;
+using Plotliner.Utils;
 
 namespace Plotliner
 {
@@ -51,12 +52,15 @@ namespace Plotliner
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
+            ContentLoader.setContent(Content);
+
             MouseListenerSettings mouseSettings = new MouseListenerSettings() { DoubleClickMilliseconds = 100 };
             mouse = new MouseListener(mouseSettings);
             keyboard = new KeyboardListener();
 
-            network = new NetworkManager();
-            plotline = new PlotlineManager(this);
+            plotline = new PlotlineManager(this, network);
+            network = new NetworkManager(plotline);
+            plotline.setNetwork(network);
         }
 
         /// <summary>

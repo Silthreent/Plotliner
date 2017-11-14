@@ -7,10 +7,22 @@ using System.Threading.Tasks;
 
 namespace Plotliner.Manager
 {
+    /*
+     * -Message types-
+     * 
+     * 0 = Int, Int
+     * */
     class NetworkManager
     {
+        PlotlineManager plotline;
+
         NetServer server;
         NetClient client;
+
+        public NetworkManager(PlotlineManager plotline)
+        {
+            this.plotline = plotline;
+        }
 
         public void update()
         {
@@ -33,7 +45,12 @@ namespace Plotliner.Manager
                 switch(message.MessageType)
                 {
                     case NetIncomingMessageType.Data:
-                        Console.WriteLine(message.LengthBytes);
+                        switch(message.ReadByte())
+                        {
+                            case 0:
+                                messageClients(0, message.ReadInt32(), message.ReadInt32());
+                                break;
+                        }
                         break;
                     case NetIncomingMessageType.StatusChanged:
                         Console.WriteLine(message.SenderConnection.Status);
@@ -56,7 +73,12 @@ namespace Plotliner.Manager
                 switch(message.MessageType)
                 {
                     case NetIncomingMessageType.Data:
-                        Console.WriteLine(message.LengthBytes);
+                        switch(message.ReadByte())
+                        {
+                            case 0:
+                                plotline.createTextBox(message.ReadInt32(), message.ReadInt32());
+                                break;
+                        }
                         break;
                     case NetIncomingMessageType.StatusChanged:
                         Console.WriteLine(message.SenderConnection.Status);
@@ -71,17 +93,21 @@ namespace Plotliner.Manager
             }
         }
 
-        public void sendMessage()
+        public void sendMessage(byte msg, int arg1, int arg2)
         {
             var message = client.CreateMessage();
-            message.Write("Test");
+            message.Write(msg);
+            message.Write(arg1);
+            message.Write(arg2);
             client.SendMessage(message, NetDeliveryMethod.ReliableOrdered);
         }
 
-        void messageClients(string msg)
+        void messageClients(byte msg, int arg1, int arg2)
         {
             var message = server.CreateMessage();
             message.Write(msg);
+            message.Write(arg1);
+            message.Write(arg2);
             server.SendMessage(message, server.Connections, NetDeliveryMethod.ReliableOrdered, 0);
         }
 

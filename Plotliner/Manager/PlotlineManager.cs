@@ -15,14 +15,18 @@ namespace Plotliner.Manager
     class PlotlineManager
     {
         Game1 gameRef;
+        NetworkManager network;
+
         Camera camera;
         List<TextBox> textBoxes;
 
         TextBox focus;
 
-        public PlotlineManager(Game1 gameRef)
+        public PlotlineManager(Game1 gameRef, NetworkManager network)
         {
             this.gameRef = gameRef;
+            this.network = network;
+
             camera = new Camera(gameRef.GraphicsDevice);
 
             textBoxes = new List<TextBox>();
@@ -47,11 +51,16 @@ namespace Plotliner.Manager
             spriteBatch.End();
         }
 
-        void createTextBox()
+        public void setNetwork(NetworkManager network)
         {
-            Vector2 world = camera.ToWorld(Mouse.GetState().Position.ToVector2());
+            this.network = network;
+        }
 
-            textBoxes.Add(new TextBox(world.ToPoint(), gameRef));
+        public void createTextBox(int x, int y)
+        {
+            //Vector2 world = camera.ToWorld(Mouse.GetState().Position.ToVector2());
+
+            textBoxes.Add(new TextBox(new Point(x, y), gameRef));
         }
 
         void onKeyReleased(object sender, KeyboardEventArgs args)
@@ -59,10 +68,22 @@ namespace Plotliner.Manager
             if(focus != null)
                 return;
 
+            if(args.Key == Keys.R)
+            {
+                network.createServer();
+                network.createClient("127.0.0.1");
+            }
+            if(args.Key == Keys.F)
+            {
+                network.createClient("71.203.217.238");
+            }
+
             if(args.Key == Keys.Q)
             {
                 Console.WriteLine("Q pressed");
-                createTextBox();
+
+                Point world = camera.ToWorld(Mouse.GetState().Position.ToVector2()).ToPoint();
+                network.sendMessage(0, world.X, world.Y);
             }
         }
     }
