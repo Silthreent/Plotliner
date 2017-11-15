@@ -71,6 +71,11 @@ namespace Plotliner.Manager
             textBoxes.Add(new TextBox(x, y, gameRef));
         }
 
+        public void deleteTextBox(int index)
+        {
+            textBoxes.RemoveAt(index);
+        }
+
         public void createBoxConnect(int box1, int box2)
         {
             boxLines.Add(new BoxConnection(textBoxes[box1], textBoxes[box2], gameRef));
@@ -127,6 +132,15 @@ namespace Plotliner.Manager
                 Console.WriteLine("Creating Box");
                 Point world = camera.ToWorld(Mouse.GetState().Position.ToVector2()).ToPoint();
                 network.sendMessage(0, world.X, world.Y);
+            }
+            if(args.Key == Keys.A)
+            {
+                TextBox box = checkBoxClick();
+                if(box != null)
+                {
+                    Console.WriteLine("Deleting box");
+                    network.sendMessage(4, textBoxes.IndexOf(box));
+                }
             }
 
             if(args.Key == Keys.W)

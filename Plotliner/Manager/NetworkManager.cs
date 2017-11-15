@@ -63,6 +63,10 @@ namespace Plotliner.Manager
                                 Console.WriteLine("Server Recieved: Create Box Connection");
                                 messageClients(3, message.ReadInt32(), message.ReadInt32());
                                 break;
+                            case 4:
+                                Console.WriteLine("Server Recieved: Delete Text Box");
+                                messageClients(4, message.ReadInt32());
+                                break;
                         }
                         break;
                     case NetIncomingMessageType.StatusChanged:
@@ -103,6 +107,10 @@ namespace Plotliner.Manager
                             case 3:
                                 Console.WriteLine("Client Recieved: Create Box Connection");
                                 plotline.createBoxConnect(message.ReadInt32(), message.ReadInt32());
+                                break;
+                            case 4:
+                                Console.WriteLine("Client Recieved: Delete Text Box");
+                                plotline.deleteTextBox(message.ReadInt32());
                                 break;
                         }
                         break;
@@ -148,6 +156,14 @@ namespace Plotliner.Manager
             client.SendMessage(message, NetDeliveryMethod.ReliableOrdered);
         }
 
+        public void sendMessage(byte msg, int index)
+        {
+            var message = client.CreateMessage();
+            message.Write(msg);
+            message.Write(index);
+            client.SendMessage(message, NetDeliveryMethod.ReliableOrdered);
+        }
+
         void messageClients(byte msg, int arg1, int arg2)
         {
             var message = server.CreateMessage();
@@ -173,6 +189,14 @@ namespace Plotliner.Manager
             message.Write(index);
             message.Write(arg1);
             message.Write(arg2);
+            server.SendMessage(message, server.Connections, NetDeliveryMethod.ReliableOrdered, 0);
+        }
+
+        void messageClients(byte msg, int index)
+        {
+            var message = server.CreateMessage();
+            message.Write(msg);
+            message.Write(index);
             server.SendMessage(message, server.Connections, NetDeliveryMethod.ReliableOrdered, 0);
         }
 
