@@ -66,5 +66,21 @@ namespace Plotliner.Entities
                 }
             }
         }
+
+        public Point Position
+        {
+            get
+            {
+                return position;
+            }
+        }
+
+        public Point Size
+        {
+            get
+            {
+                return size;
+            }
+        }
     }
 }

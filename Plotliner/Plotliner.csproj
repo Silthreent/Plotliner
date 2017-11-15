@@ -43,6 +43,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Entities\BoxConnection.cs" />
     <Compile Include="Entities\TextBox.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="Manager\NetworkManager.cs" />

@@ -19,9 +19,11 @@ namespace Plotliner.Manager
 
         Camera camera;
         List<TextBox> textBoxes;
+        List<BoxConnection> boxLines;
 
         TextBox focus;
         TextBox dragging;
+        TextBox connecting;
 
         public PlotlineManager(Game1 gameRef, NetworkManager network)
         {
@@ -31,6 +33,7 @@ namespace Plotliner.Manager
             camera = new Camera(gameRef.GraphicsDevice);
 
             textBoxes = new List<TextBox>();
+            boxLines = new List<BoxConnection>();
 
             gameRef.Keyboard.KeyReleased += onKeyReleased;
             gameRef.Keyboard.KeyTyped += onKeyTyped;
@@ -46,6 +49,10 @@ namespace Plotliner.Manager
         {
             spriteBatch.Begin(camera: camera);
             {
+                foreach(BoxConnection line in boxLines)
+                {
+                    line.draw(spriteBatch);
+                }
                 foreach(TextBox box in textBoxes)
                 {
                     box.draw(spriteBatch);
@@ -62,6 +69,11 @@ namespace Plotliner.Manager
         public void createTextBox(int x, int y)
         {
             textBoxes.Add(new TextBox(x, y, gameRef));
+        }
+
+        public void createBoxConnect(int box1, int box2)
+        {
+            boxLines.Add(new BoxConnection(textBoxes[box1], textBoxes[box2], gameRef));
         }
 
         public void updateTextBox(int index, string text)
@@ -115,6 +127,31 @@ namespace Plotliner.Manager
                 Console.WriteLine("Creating Box");
                 Point world = camera.ToWorld(Mouse.GetState().Position.ToVector2()).ToPoint();
                 network.sendMessage(0, world.X, world.Y);
+            }
+
+            if(args.Key == Keys.W)
+            {
+                TextBox box = checkBoxClick();
+                if(box != null)
+                {
+                    Console.WriteLine("Creating Connection");
+                    if(connecting == null)
+                    {
+                        if(connecting == box)
+                        {
+                            Console.WriteLine("Same box connected twice");
+                            connecting = null;
+                            return;
+                        }
+                        connecting = box;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Connected Boxes");
+                        network.sendMessage(3, textBoxes.IndexOf(connecting), textBoxes.IndexOf(box));
+                        connecting = null;
+                    }
+                }
             }
         }
 

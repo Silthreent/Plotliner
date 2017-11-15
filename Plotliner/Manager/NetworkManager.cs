@@ -59,6 +59,10 @@ namespace Plotliner.Manager
                                 Console.WriteLine("Server Recieved: Update TextBox Position");
                                 messageClients(2, message.ReadInt32(), message.ReadInt32(), message.ReadInt32());
                                 break;
+                            case 3:
+                                Console.WriteLine("Server Recieved: Create Box Connection");
+                                messageClients(3, message.ReadInt32(), message.ReadInt32());
+                                break;
                         }
                         break;
                     case NetIncomingMessageType.StatusChanged:
@@ -95,6 +99,10 @@ namespace Plotliner.Manager
                             case 2:
                                 Console.WriteLine("Client Recieved: Update TextBox Position");
                                 plotline.updateTextBox(message.ReadInt32(), message.ReadInt32(), message.ReadInt32());
+                                break;
+                            case 3:
+                                Console.WriteLine("Client Recieved: Create Box Connection");
+                                plotline.createBoxConnect(message.ReadInt32(), message.ReadInt32());
                                 break;
                         }
                         break;
