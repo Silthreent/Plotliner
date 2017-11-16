@@ -15,6 +15,7 @@ namespace Plotliner.Entities
 {
     class TextBox
     {
+        int borderSize = 10;
         SpriteFont font;
         Texture2D rect;
         string text = "";
@@ -32,8 +33,13 @@ namespace Plotliner.Entities
             rect.SetData(new[] { Color.White });
         }
 
-        public void draw(SpriteBatch spriteBatch)
+        public void draw(SpriteBatch spriteBatch, bool focus)
         {
+            if(focus)
+                spriteBatch.Draw(rect, new Rectangle(position - new Point(borderSize / 2, borderSize / 2), size + new Point(borderSize, borderSize)), Color.Red);
+            else
+                spriteBatch.Draw(rect, new Rectangle(position - new Point(borderSize / 2, borderSize / 2), size + new Point(borderSize, borderSize)), Color.Black);
+
             spriteBatch.Draw(rect, new Rectangle(position, size), Color.White);
             spriteBatch.DrawString(font, text, position.ToVector2(), Color.Black);
         }
@@ -58,7 +64,6 @@ namespace Plotliner.Entities
             file.WriteLine(text);
             file.WriteLine("@");
             file.WriteLine(position.X + "," + position.Y);
-            //file.WriteLine("*");
         }
 
         public string Text

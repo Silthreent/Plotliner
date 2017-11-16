@@ -56,7 +56,7 @@ namespace Plotliner.Manager
                 }
                 foreach(TextBox box in textBoxes)
                 {
-                    box.draw(spriteBatch);
+                    box.draw(spriteBatch, focus == box);
                 }
             }
             spriteBatch.End();
