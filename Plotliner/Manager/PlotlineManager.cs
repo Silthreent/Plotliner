@@ -6,6 +6,7 @@ using MonoGame.Extended.Input.InputListeners;
 using Plotliner.Entities;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -97,6 +98,27 @@ namespace Plotliner.Manager
             textBoxes[index].updatePosition(x, y);
         }
 
+        public void savePlotline(string fileName)
+        {
+            Console.WriteLine("Saving");
+
+            using(StreamWriter file = new StreamWriter(@"plotlines/" + fileName + ".txt"))
+            {
+                foreach(TextBox box in textBoxes)
+                {
+                    box.save(file);
+                }
+                foreach(BoxConnection connection in boxLines)
+                {
+                    file.WriteLine("!");
+                    file.WriteLine(textBoxes.IndexOf(connection.Box1));
+                    file.WriteLine(textBoxes.IndexOf(connection.Box2));
+                }
+            }
+
+            Console.WriteLine("Saved");
+        }
+
         TextBox checkBoxClick()
         {
             Point world = camera.ToWorld(Mouse.GetState().Position.ToVector2()).ToPoint();
@@ -185,6 +207,15 @@ namespace Plotliner.Manager
                 {
                     network.sendMessage(1, textBoxes.IndexOf(focus), "\n");
                     return;
+                }
+
+                if(args.Modifiers == KeyboardModifiers.Control)
+                {
+                    if(args.Key == Keys.S)
+                    {
+                        savePlotline(focus.Text);
+                        return;
+                    }
                 }
 
                 if(args.Character.HasValue)

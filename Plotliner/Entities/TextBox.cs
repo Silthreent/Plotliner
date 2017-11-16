@@ -6,6 +6,7 @@ using Plotliner.Manager;
 using Plotliner.Utils;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -49,6 +50,15 @@ namespace Plotliner.Entities
         {
             position.X = x;
             position.Y = y;
+        }
+
+        public void save(StreamWriter file)
+        {
+            file.WriteLine("#");
+            file.WriteLine(text);
+            file.WriteLine("@");
+            file.WriteLine(position.X + "," + position.Y);
+            file.WriteLine("*");
         }
 
         public string Text

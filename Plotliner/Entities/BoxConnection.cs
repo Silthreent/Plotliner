@@ -28,5 +28,21 @@ namespace Plotliner.Entities
             spriteBatch.Draw(rect, box1.Position.ToVector2() + (box1.Size.ToVector2() / 2), null, Color.Black,
                 (float)Math.Atan2(box2.Position.Y - box1.Position.Y, box2.Position.X - box1.Position.X), new Vector2(0f, 0f), new Vector2(Vector2.Distance(box1.Position.ToVector2(), box2.Position.ToVector2()), 3f), SpriteEffects.None, 0f);
         }
+
+        public TextBox Box1
+        {
+            get
+            {
+                return box1;
+            }
+        }
+
+        public TextBox Box2
+        {
+            get
+            {
+                return box2;
+            }
+        }
     }
 }
