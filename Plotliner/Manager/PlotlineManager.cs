@@ -98,7 +98,7 @@ namespace Plotliner.Manager
             textBoxes[index].updatePosition(x, y);
         }
 
-        public void savePlotline(string fileName)
+        void savePlotline(string fileName)
         {
             Console.WriteLine("Saving");
 
@@ -117,6 +117,56 @@ namespace Plotliner.Manager
             }
 
             Console.WriteLine("Saved");
+        }
+
+        public void loadPlotline(string loadString)
+        {
+            Console.WriteLine("Loading");
+
+            dragging = null;
+            focus = null;
+            textBoxes.Clear();
+
+            TextBox tempBox = null;
+            string line = "";
+
+            try
+            {
+                using(StringReader file = new StringReader(loadString))
+                {
+                    while((line = file.ReadLine()) != null)
+                    {
+                        Console.WriteLine(line);
+                        if(line == "#")
+                        {
+                            tempBox = new TextBox(0, 0, gameRef);
+                            textBoxes.Add(tempBox);
+                        }
+                        else if(line[0] == '@')
+                        {
+                            line = file.ReadLine();
+                            string[] split = line.Split(',');
+                            tempBox.updatePosition(int.Parse(split[0]), int.Parse(split[1]));
+                        }
+                        else if(line == "!")
+                        {
+                            boxLines.Add(new BoxConnection(textBoxes[int.Parse(file.ReadLine())], textBoxes[int.Parse(file.ReadLine())], gameRef));
+                        }
+                        else
+                        {
+                            tempBox.Text = line;
+                        }
+                    }
+                }
+            }
+            catch(FileNotFoundException e)
+            {
+                focus.Text = "ERROR: FILE NOT FOUND";
+                focus = null;
+                Console.WriteLine(e.Message);
+            }
+
+            Console.WriteLine("Loaded");
         }
 
         TextBox checkBoxClick()
@@ -214,6 +264,22 @@ namespace Plotliner.Manager
                     if(args.Key == Keys.S)
                     {
                         savePlotline(focus.Text);
+                        return;
+                    }
+
+                    if(args.Key == Keys.L)
+                    {
+                        try
+                        {
+                            using(StreamReader file = new StreamReader(@"plotlines/" + focus.Text + ".txt"))
+                            {
+                                network.sendMessage(5, file.ReadToEnd());
+                            }
+                        }
+                        catch(FileNotFoundException e)
+                        {
+                            Console.WriteLine(e.Message);
+                        }
                         return;
                     }
                 }

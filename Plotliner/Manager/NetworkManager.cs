@@ -67,6 +67,10 @@ namespace Plotliner.Manager
                                 Console.WriteLine("Server Recieved: Delete Text Box");
                                 messageClients(4, message.ReadInt32());
                                 break;
+                            case 5:
+                                Console.WriteLine("Server Recieved: Load Plotline");
+                                messageClients(5, message.ReadString());
+                                break;
                         }
                         break;
                     case NetIncomingMessageType.StatusChanged:
@@ -111,6 +115,10 @@ namespace Plotliner.Manager
                             case 4:
                                 Console.WriteLine("Client Recieved: Delete Text Box");
                                 plotline.deleteTextBox(message.ReadInt32());
+                                break;
+                            case 5:
+                                Console.WriteLine("Client Recieved: Load Plotline");
+                                plotline.loadPlotline(message.ReadString());
                                 break;
                         }
                         break;
@@ -164,6 +172,14 @@ namespace Plotliner.Manager
             client.SendMessage(message, NetDeliveryMethod.ReliableOrdered);
         }
 
+        public void sendMessage(byte msg, string load)
+        {
+            var message = client.CreateMessage();
+            message.Write(msg);
+            message.Write(load);
+            client.SendMessage(message, NetDeliveryMethod.ReliableOrdered);
+        }
+
         void messageClients(byte msg, int arg1, int arg2)
         {
             var message = server.CreateMessage();
@@ -197,6 +213,14 @@ namespace Plotliner.Manager
             var message = server.CreateMessage();
             message.Write(msg);
             message.Write(index);
+            server.SendMessage(message, server.Connections, NetDeliveryMethod.ReliableOrdered, 0);
+        }
+
+        void messageClients(byte msg, string load)
+        {
+            var message = server.CreateMessage();
+            message.Write(msg);
+            message.Write(load);
             server.SendMessage(message, server.Connections, NetDeliveryMethod.ReliableOrdered, 0);
         }
 

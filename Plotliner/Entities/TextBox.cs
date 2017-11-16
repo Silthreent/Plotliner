@@ -58,7 +58,7 @@ namespace Plotliner.Entities
             file.WriteLine(text);
             file.WriteLine("@");
             file.WriteLine(position.X + "," + position.Y);
-            file.WriteLine("*");
+            //file.WriteLine("*");
         }
 
         public string Text
