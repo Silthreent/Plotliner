@@ -74,7 +74,22 @@ namespace Plotliner.Manager
 
         public void deleteTextBox(int index)
         {
+            int numFound = 0;
+
+            foreach(BoxConnection connection in boxLines)
+            {
+                if(connection.Box1 == textBoxes[index] || connection.Box2 == textBoxes[index])
+                {
+                    network.sendMessage(6, boxLines.IndexOf(connection) - numFound);
+                    numFound++;
+                }
+            }
             textBoxes.RemoveAt(index);
+        }
+
+        public void deleteBoxConnection(int index)
+        {
+            boxLines.RemoveAt(index);
         }
 
         public void createBoxConnect(int box1, int box2)
@@ -256,7 +271,6 @@ namespace Plotliner.Manager
                         savePlotline(focus.Text);
                         return;
                     }
-
                     if(args.Key == Keys.L)
                     {
                         try
@@ -285,8 +299,6 @@ namespace Plotliner.Manager
 
                 if(args.Character.HasValue)
                 {
-                    Console.WriteLine(":" + args.Character.Value + ":");
-                    Console.WriteLine(":" + "" + ":");
                     network.sendMessage(1, textBoxes.IndexOf(focus), args.Character.Value.ToString());
                 }
             }

@@ -50,6 +50,8 @@ namespace Plotliner.Manager
          *      Delete a Box
          * 5 = string
          *      Load a Plotline
+         * 6 = Int32
+         *      Delete BoxConnection
         */
         void updateServer()
         {
@@ -84,6 +86,10 @@ namespace Plotliner.Manager
                             case 5:
                                 Console.WriteLine("Server Recieved: Load Plotline");
                                 messageClients(5, message.ReadString());
+                                break;
+                            case 6:
+                                Console.WriteLine("Server Recieved: Delete Box Connection");
+                                messageClients(6, message.ReadInt32());
                                 break;
                         }
                         break;
@@ -133,6 +139,10 @@ namespace Plotliner.Manager
                             case 5:
                                 Console.WriteLine("Client Recieved: Load Plotline");
                                 plotline.loadPlotline(message.ReadString());
+                                break;
+                            case 6:
+                                Console.WriteLine("Client Recieved: Deleting Box Connection");
+                                plotline.deleteBoxConnection(message.ReadInt32());
                                 break;
                         }
                         break;
