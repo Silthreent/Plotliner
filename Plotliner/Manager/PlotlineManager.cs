@@ -21,6 +21,7 @@ namespace Plotliner.Manager
         Camera camera;
         List<TextBox> textBoxes;
         List<BoxConnection> boxLines;
+        Texture2D rect;
 
         TextBox focus;
         TextBox dragging;
@@ -35,6 +36,9 @@ namespace Plotliner.Manager
 
             textBoxes = new List<TextBox>();
             boxLines = new List<BoxConnection>();
+
+            rect = new Texture2D(gameRef.GraphicsDevice, 1, 1);
+            rect.SetData(new[] { Color.White });
 
             gameRef.Keyboard.KeyReleased += onKeyReleased;
             gameRef.Keyboard.KeyTyped += onKeyTyped;
@@ -57,6 +61,13 @@ namespace Plotliner.Manager
                 foreach(TextBox box in textBoxes)
                 {
                     box.draw(spriteBatch, focus == box);
+                }
+
+                if(connecting != null)
+                {
+                    Vector2 world = camera.ToWorld(Mouse.GetState().Position.ToVector2());
+                    spriteBatch.Draw(rect, connecting.Position.ToVector2() + (connecting.Size.ToVector2() / 2), null, Color.Black,
+                        (float)Math.Atan2(world.Y - connecting.Position.Y, world.X - connecting.Position.X), new Vector2(0f, 0f), new Vector2(Vector2.Distance(connecting.Position.ToVector2(), world - (connecting.Size.ToVector2() / 2)), 3f), SpriteEffects.None, 0f);
                 }
             }
             spriteBatch.End();
