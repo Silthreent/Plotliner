@@ -189,16 +189,6 @@ namespace Plotliner.Manager
             if(focus != null)
                 return;
 
-            if(args.Key == Keys.R)
-            {
-                network.createServer();
-                network.createClient("127.0.0.1");
-            }
-            if(args.Key == Keys.F)
-            {
-                network.createClient("71.203.217.238");
-            }
-
             if(args.Key == Keys.Q)
             {
                 Console.WriteLine("Creating Box");
@@ -281,6 +271,15 @@ namespace Plotliner.Manager
                             Console.WriteLine(e.Message);
                         }
                         return;
+                    }
+
+                    if(args.Key == Keys.C)
+                    {
+                        network.createClient(focus.Text);
+                    }
+                    if(args.Key == Keys.V)
+                    {
+                        network.createServer(int.Parse(focus.Text));
                     }
                 }
 

@@ -7,11 +7,7 @@ using System.Threading.Tasks;
 
 namespace Plotliner.Manager
 {
-    /*
-     * -Message types-
-     * 
-     * 0 = Int, Int
-     * */
+    
     class NetworkManager
     {
         PlotlineManager plotline;
@@ -22,6 +18,9 @@ namespace Plotliner.Manager
         public NetworkManager(PlotlineManager plotline)
         {
             this.plotline = plotline;
+
+            createServer();
+            createClient("127.0.0.1");
         }
 
         public void update()
@@ -37,6 +36,21 @@ namespace Plotliner.Manager
             }
         }
 
+        /* -Message types-
+         * 
+         * 0 = Int32, Int32
+         *      Create TextBox
+         * 1 = Int32, string
+         *      Update the text of a TextBox
+         * 2 = Int32, Int32, Int32
+         *      Update the position of a TextBox
+         * 3 = Int32, Int32
+         *      Create a BoxConnection
+         * 4 = Int32
+         *      Delete a Box
+         * 5 = string
+         *      Load a Plotline
+        */
         void updateServer()
         {
             NetIncomingMessage message;
@@ -228,6 +242,12 @@ namespace Plotliner.Manager
         {
             Console.WriteLine("Creating Server...");
 
+            if(server != null)
+            {
+                server.Shutdown("Remaking");
+                server = null;
+            }
+
             var config = new NetPeerConfiguration("Plotliner") { Port = port, EnableUPnP = true };
             server = new NetServer(config);
             server.Start();
@@ -239,6 +259,19 @@ namespace Plotliner.Manager
         public void createClient(string ip, int port = 12345)
         {
             Console.WriteLine("Creating Client...");
+
+            if(client != null)
+            {
+                client.Shutdown("Remaking");
+                client = null;
+            }
+
+            string[] split = ip.Split(':');
+            if(split.Length == 2)
+            {
+                ip = split[0];
+                port = int.Parse(split[1]);
+            }
 
             var config = new NetPeerConfiguration("Plotliner");
             client = new NetClient(config);
