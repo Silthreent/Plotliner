@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.Input.InputListeners;
 using Plotliner.Entities;
+using Plotliner.Utils;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -22,10 +23,13 @@ namespace Plotliner.Manager
         List<TextBox> textBoxes;
         List<BoxConnection> boxLines;
         Texture2D rect;
+        SpriteFont font;
 
         TextBox focus;
         TextBox dragging;
         TextBox connecting;
+
+        string lastAction = "";
 
         public PlotlineManager(Game1 gameRef, NetworkManager network)
         {
@@ -36,6 +40,8 @@ namespace Plotliner.Manager
 
             textBoxes = new List<TextBox>();
             boxLines = new List<BoxConnection>();
+
+            font = ContentLoader.loadSpriteFont("Font");
 
             rect = new Texture2D(gameRef.GraphicsDevice, 1, 1);
             rect.SetData(new[] { Color.White });
@@ -69,6 +75,13 @@ namespace Plotliner.Manager
                     spriteBatch.Draw(rect, connecting.Position.ToVector2() + (connecting.Size.ToVector2() / 2), null, Color.Black,
                         (float)Math.Atan2(world.Y - connecting.Position.Y, world.X - connecting.Position.X), new Vector2(0f, 0f), new Vector2(Vector2.Distance(connecting.Position.ToVector2(), world - (connecting.Size.ToVector2() / 2)), 3f), SpriteEffects.None, 0f);
                 }
+
+            }
+            spriteBatch.End();
+
+            spriteBatch.Begin();
+            {
+                spriteBatch.DrawString(font, lastAction, new Vector2(0, 0), Color.White);
             }
             spriteBatch.End();
         }
@@ -142,6 +155,7 @@ namespace Plotliner.Manager
                 }
             }
 
+            lastAction = "Saved";
             Console.WriteLine("Saved");
         }
 
@@ -151,6 +165,7 @@ namespace Plotliner.Manager
 
             dragging = null;
             focus = null;
+            connecting = null;
             textBoxes.Clear();
 
             TextBox tempBox = null;
@@ -162,7 +177,9 @@ namespace Plotliner.Manager
                 {
                     while((line = file.ReadLine()) != null)
                     {
-                        Console.WriteLine(line);
+                        if(line.Length == 0)
+                            continue;
+
                         if(line == "#")
                         {
                             tempBox = new TextBox(0, 0, gameRef);
@@ -192,6 +209,7 @@ namespace Plotliner.Manager
                 Console.WriteLine(e.Message);
             }
 
+            lastAction = "Loaded";
             Console.WriteLine("Loaded");
         }
 
@@ -220,6 +238,7 @@ namespace Plotliner.Manager
                 Console.WriteLine("Creating Box");
                 Point world = camera.ToWorld(Mouse.GetState().Position.ToVector2()).ToPoint();
                 network.sendMessage(0, world.X, world.Y);
+                lastAction = "Created Box";
             }
             if(args.Key == Keys.A)
             {
@@ -228,6 +247,7 @@ namespace Plotliner.Manager
                 {
                     Console.WriteLine("Deleting box");
                     network.sendMessage(4, textBoxes.IndexOf(box));
+                    lastAction = "Deleted Box";
                 }
             }
 
@@ -246,11 +266,13 @@ namespace Plotliner.Manager
                             return;
                         }
                         connecting = box;
+                        lastAction = "Drawing Line";
                     }
                     else
                     {
                         Console.WriteLine("Connected Boxes");
                         network.sendMessage(3, textBoxes.IndexOf(connecting), textBoxes.IndexOf(box));
+                        lastAction = "Drew line";
                         connecting = null;
                     }
                 }
@@ -279,6 +301,7 @@ namespace Plotliner.Manager
                 {
                     if(args.Key == Keys.S)
                     {
+                        lastAction = "Saving...";
                         savePlotline(focus.Text);
                         return;
                     }
@@ -289,6 +312,7 @@ namespace Plotliner.Manager
                             using(StreamReader file = new StreamReader(@"plotlines/" + focus.Text + ".txt"))
                             {
                                 network.sendMessage(5, file.ReadToEnd());
+                                lastAction = "Loading...";
                             }
                         }
                         catch(FileNotFoundException e)
@@ -300,11 +324,15 @@ namespace Plotliner.Manager
 
                     if(args.Key == Keys.C)
                     {
+                        lastAction = "Connecting...";
                         network.createClient(focus.Text);
+                        lastAction = "Connected";
                     }
                     if(args.Key == Keys.V)
                     {
+                        lastAction = "Creating server...";
                         network.createServer(int.Parse(focus.Text));
+                        lastAction = "Created server";
                     }
                 }
 
