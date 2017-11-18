@@ -54,6 +54,7 @@ namespace Plotliner.Manager
             gameRef.Mouse.MouseDragStart += onMouseDragStart;
             gameRef.Mouse.MouseDrag += onMouseDrag;
             gameRef.Mouse.MouseDragEnd += onMouseDragEnd;
+            gameRef.Mouse.MouseWheelMoved += onMouseWheelMove;
         }
 
         public void draw(SpriteBatch spriteBatch)
@@ -390,6 +391,20 @@ namespace Plotliner.Manager
         void onMouseDragEnd(object sender, MouseEventArgs args)
         {
             dragging = null;
+        }
+
+        void onMouseWheelMove(object sender, MouseEventArgs args)
+        {
+            if(args.ScrollWheelDelta > 0)
+                camera.Scale += .1f;
+            else
+            {
+                camera.Scale -= .1f;
+                if(camera.Scale < .2f)
+                {
+                    camera.Scale = .2f;
+                }
+            }
         }
     }
 }
