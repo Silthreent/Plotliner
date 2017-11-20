@@ -52,6 +52,8 @@ namespace Plotliner.Manager
          *      Load a Plotline
          * 6 = Int32
          *      Delete BoxConnection
+         * 7 = Int32, Byte, Byte, Byte
+         *      Change TexBox Color
         */
         void updateServer()
         {
@@ -90,6 +92,10 @@ namespace Plotliner.Manager
                             case 6:
                                 Console.WriteLine("Server Recieved: Delete Box Connection");
                                 messageClients(6, message.ReadInt32());
+                                break;
+                            case 7:
+                                Console.WriteLine("Server Recieved: Change TextBox Color");
+                                messageClients(7, message.ReadInt32(), message.ReadByte(), message.ReadByte(), message.ReadByte());
                                 break;
                         }
                         break;
@@ -143,6 +149,10 @@ namespace Plotliner.Manager
                             case 6:
                                 Console.WriteLine("Client Recieved: Deleting Box Connection");
                                 plotline.deleteBoxConnection(message.ReadInt32());
+                                break;
+                            case 7:
+                                Console.WriteLine("Client Recieved: Changing Text Box Color");
+                                plotline.updateTextBox(message.ReadInt32(), message.ReadByte(), message.ReadByte(), message.ReadByte());
                                 break;
                         }
                         break;
@@ -204,6 +214,17 @@ namespace Plotliner.Manager
             client.SendMessage(message, NetDeliveryMethod.ReliableOrdered);
         }
 
+        public void sendMessage(byte msg, int index, byte r, byte g, byte b)
+        {
+            var message = client.CreateMessage();
+            message.Write(msg);
+            message.Write(index);
+            message.Write(r);
+            message.Write(g);
+            message.Write(b);
+            client.SendMessage(message, NetDeliveryMethod.ReliableOrdered);
+        }
+
         void messageClients(byte msg, int arg1, int arg2)
         {
             var message = server.CreateMessage();
@@ -248,6 +269,17 @@ namespace Plotliner.Manager
             server.SendMessage(message, server.Connections, NetDeliveryMethod.ReliableOrdered, 0);
         }
 
+        void messageClients(byte msg, int index, byte r, byte g, byte b)
+        {
+            var message = server.CreateMessage();
+            message.Write(msg);
+            message.Write(index);
+            message.Write(r);
+            message.Write(g);
+            message.Write(b);
+            server.SendMessage(message, server.Connections, NetDeliveryMethod.ReliableOrdered, 0);
+        }
+
         public void createServer(int port = 12345)
         {
             Console.WriteLine("Creating Server...");
@@ -266,6 +298,7 @@ namespace Plotliner.Manager
             Console.WriteLine("Created Server");
         }
 
+        // TODO: Check what happens if you connect to a server?
         public void createClient(string ip, int port = 12345)
         {
             Console.WriteLine("Creating Client...");

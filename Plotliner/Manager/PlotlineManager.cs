@@ -18,6 +18,7 @@ namespace Plotliner.Manager
     {
         Game1 gameRef;
         NetworkManager network;
+        ColorChanger colorPicker;
 
         Camera camera;
         List<TextBox> textBoxes;
@@ -37,6 +38,7 @@ namespace Plotliner.Manager
             this.network = network;
 
             camera = new Camera(gameRef.GraphicsDevice);
+            colorPicker = new ColorChanger(gameRef);
 
             textBoxes = new List<TextBox>();
             boxLines = new List<BoxConnection>();
@@ -68,6 +70,11 @@ namespace Plotliner.Manager
                 foreach(TextBox box in textBoxes)
                 {
                     box.draw(spriteBatch, focus == box);
+                }
+
+                if(colorPicker.Enabled)
+                {
+                    colorPicker.draw(spriteBatch);
                 }
 
                 if(connecting != null)
@@ -109,6 +116,9 @@ namespace Plotliner.Manager
                     numFound++;
                 }
             }
+            if(colorPicker.Box == textBoxes[index])
+                colorPicker.disable();
+
             textBoxes.RemoveAt(index);
         }
 
@@ -136,6 +146,12 @@ namespace Plotliner.Manager
         public void updateTextBox(int index, int x, int y)
         {
             textBoxes[index].updatePosition(x, y);
+        }
+
+        public void updateTextBox(int index, byte r, byte g, byte b)
+        {
+            textBoxes[index].Color = new Color(r, g, b);
+            lastAction = "Changed Box Color";
         }
 
         void savePlotline(string fileName)
@@ -188,13 +204,17 @@ namespace Plotliner.Manager
                         }
                         else if(line[0] == '@')
                         {
-                            line = file.ReadLine();
-                            string[] split = line.Split(',');
+                            string[] split = file.ReadLine().Split(',');
                             tempBox.updatePosition(int.Parse(split[0]), int.Parse(split[1]));
                         }
                         else if(line == "!")
                         {
                             boxLines.Add(new BoxConnection(textBoxes[int.Parse(file.ReadLine())], textBoxes[int.Parse(file.ReadLine())], gameRef));
+                        }
+                        else if(line == "%")
+                        {
+                            string[] split = file.ReadLine().Split(',');
+                            tempBox.Color = new Color(int.Parse(split[0]), int.Parse(split[1]), int.Parse(split[2]));
                         }
                         else
                         {
@@ -346,51 +366,86 @@ namespace Plotliner.Manager
 
         void onMouseClick(object sender, MouseEventArgs args)
         {
-            TextBox box = checkBoxClick();
-            if(box == null)
+            if(args.Button == MouseButton.Left)
             {
-                focus = null;
+                TextBox box = checkBoxClick();
+                if(box == null)
+                {
+                    if(colorPicker.Enabled)
+                    {
+                        Color color;
+                        if((color = colorPicker.checkClicked(camera.ToWorld(Mouse.GetState().Position.ToVector2()).ToPoint())) != Color.Transparent)
+                        {
+                            network.sendMessage(7, textBoxes.IndexOf(colorPicker.Box), color.R, color.G, color.B);
+                            return;
+                        }
+                    }
+
+                    focus = null;
+                    colorPicker.disable();
+                }
+            }
+            
+            if(args.Button == MouseButton.Right)
+            {
+                TextBox box = checkBoxClick();
+                if(box != null)
+                {
+                    colorPicker.enable(box);
+                }
             }
         }
 
         void onMouseDoubleClick(object sender, MouseEventArgs args)
         {
-            TextBox box = checkBoxClick();
-            if(box != null)
+            if(args.Button == MouseButton.Left)
             {
-                focus = box;
-            }
-            else
-            {
-                focus = null;
+                TextBox box = checkBoxClick();
+                if(box != null)
+                {
+                    focus = box;
+                }
+                else
+                {
+                    focus = null;
+                }
             }
         }
 
         void onMouseDragStart(object sender, MouseEventArgs args)
         {
-            TextBox box = checkBoxClick();
-            if(box != null)
+            if(args.Button == MouseButton.Left)
             {
-                dragging = box;
+                TextBox box = checkBoxClick();
+                if(box != null)
+                {
+                    dragging = box;
+                }
             }
         }
 
         void onMouseDrag(object sender, MouseEventArgs args)
         {
-            if(dragging == null)
+            if(args.Button == MouseButton.Left)
             {
-                camera.Position -= args.DistanceMoved;
-            }
-            else
-            {
-                Point world = camera.ToWorld(Mouse.GetState().Position.ToVector2()).ToPoint();
-                network.sendMessage(2, textBoxes.IndexOf(dragging), world.X, world.Y);
+                if(dragging == null)
+                {
+                    camera.Position -= args.DistanceMoved;
+                }
+                else
+                {
+                    Point world = camera.ToWorld(Mouse.GetState().Position.ToVector2()).ToPoint();
+                    network.sendMessage(2, textBoxes.IndexOf(dragging), world.X, world.Y);
+                }
             }
         }
 
         void onMouseDragEnd(object sender, MouseEventArgs args)
         {
-            dragging = null;
+            if(args.Button == MouseButton.Left)
+            {
+                dragging = null;
+            }
         }
 
         void onMouseWheelMove(object sender, MouseEventArgs args)
