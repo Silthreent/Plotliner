@@ -297,6 +297,11 @@ namespace Plotliner.Manager
                         connecting = null;
                     }
                 }
+                else
+                {
+                    connecting = null;
+                    lastAction = "Cancelled line";
+                }
             }
         }
 
