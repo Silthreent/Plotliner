@@ -16,6 +16,8 @@ namespace Plotliner.Manager
 {
     class PlotlineManager
     {
+        bool active = false;
+        
         Game1 gameRef;
         NetworkManager network;
         ColorChanger colorPicker;
@@ -32,10 +34,9 @@ namespace Plotliner.Manager
 
         string lastAction = "";
 
-        public PlotlineManager(Game1 gameRef, NetworkManager network)
+        public PlotlineManager(Game1 gameRef)
         {
             this.gameRef = gameRef;
-            this.network = network;
 
             camera = new Camera(gameRef.GraphicsDevice);
             colorPicker = new ColorChanger(gameRef);
@@ -47,16 +48,6 @@ namespace Plotliner.Manager
 
             rect = new Texture2D(gameRef.GraphicsDevice, 1, 1);
             rect.SetData(new[] { Color.White });
-
-            gameRef.Keyboard.KeyReleased += onKeyReleased;
-            gameRef.Keyboard.KeyTyped += onKeyTyped;
-
-            gameRef.Mouse.MouseClicked += onMouseClick;
-            gameRef.Mouse.MouseDoubleClicked += onMouseDoubleClick;
-            gameRef.Mouse.MouseDragStart += onMouseDragStart;
-            gameRef.Mouse.MouseDrag += onMouseDrag;
-            gameRef.Mouse.MouseDragEnd += onMouseDragEnd;
-            gameRef.Mouse.MouseWheelMoved += onMouseWheelMove;
         }
 
         public void draw(SpriteBatch spriteBatch)
@@ -251,7 +242,7 @@ namespace Plotliner.Manager
             return null;
         }
 
-        void onKeyReleased(object sender, KeyboardEventArgs args)
+        public void onKeyReleased(object sender, KeyboardEventArgs args)
         {
             if(focus != null)
                 return;
@@ -307,7 +298,7 @@ namespace Plotliner.Manager
             }
         }
 
-        void onKeyTyped(object sender, KeyboardEventArgs args)
+        public void onKeyTyped(object sender, KeyboardEventArgs args)
         {
             if(focus != null)
             {
@@ -376,7 +367,7 @@ namespace Plotliner.Manager
             }
         }
 
-        void onMouseClick(object sender, MouseEventArgs args)
+        public void onMouseClick(object sender, MouseEventArgs args)
         {
             if(args.Button == MouseButton.Left)
             {
@@ -408,7 +399,7 @@ namespace Plotliner.Manager
             }
         }
 
-        void onMouseDoubleClick(object sender, MouseEventArgs args)
+        public void onMouseDoubleClick(object sender, MouseEventArgs args)
         {
             if(args.Button == MouseButton.Left)
             {
@@ -424,7 +415,7 @@ namespace Plotliner.Manager
             }
         }
 
-        void onMouseDragStart(object sender, MouseEventArgs args)
+        public void onMouseDragStart(object sender, MouseEventArgs args)
         {
             if(args.Button == MouseButton.Left)
             {
@@ -436,7 +427,7 @@ namespace Plotliner.Manager
             }
         }
 
-        void onMouseDrag(object sender, MouseEventArgs args)
+        public void onMouseDrag(object sender, MouseEventArgs args)
         {
             if(args.Button == MouseButton.Left)
             {
@@ -452,7 +443,7 @@ namespace Plotliner.Manager
             }
         }
 
-        void onMouseDragEnd(object sender, MouseEventArgs args)
+        public void onMouseDragEnd(object sender, MouseEventArgs args)
         {
             if(args.Button == MouseButton.Left)
             {
@@ -460,7 +451,7 @@ namespace Plotliner.Manager
             }
         }
 
-        void onMouseWheelMove(object sender, MouseEventArgs args)
+        public void onMouseWheelMove(object sender, MouseEventArgs args)
         {
             if(args.ScrollWheelDelta > 0)
                 camera.Scale += .1f;
@@ -471,6 +462,18 @@ namespace Plotliner.Manager
                 {
                     camera.Scale = .2f;
                 }
+            }
+        }
+
+        public bool Active
+        {
+            get
+            {
+                return active;
+            }
+            set
+            {
+                active = value;
             }
         }
     }

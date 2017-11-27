@@ -20,8 +20,8 @@ namespace Plotliner.Manager
         {
             this.plotline = plotline;
 
-            createServer();
-            createClient("127.0.0.1");
+            //createServer();
+            //createClient("127.0.0.1");
         }
 
         public void update()

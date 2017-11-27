@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.Input.InputListeners;
 using Plotliner.Manager;
 using Plotliner.Utils;
+using Plotliner.Windows;
 
 namespace Plotliner
 {
@@ -12,20 +13,25 @@ namespace Plotliner
     /// </summary>
     public class Game1 : Game
     {
+        public int screenWidth = 1280;
+        public int screenHeight = 720;
+
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
         NetworkManager network;
         PlotlineManager plotline;
+        ServerConnectWindow connectWindow;
 
         KeyboardListener keyboard;
         MouseListener mouse;
+        EventManager eventManager;
         
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
-            graphics.PreferredBackBufferWidth = 1280;
-            graphics.PreferredBackBufferHeight = 720;
+            graphics.PreferredBackBufferWidth = screenWidth;
+            graphics.PreferredBackBufferHeight = screenHeight;
 
             IsMouseVisible = true;
 
@@ -58,9 +64,14 @@ namespace Plotliner
             mouse = new MouseListener(mouseSettings);
             keyboard = new KeyboardListener();
 
-            plotline = new PlotlineManager(this, network);
+            connectWindow = new ServerConnectWindow(this);
+            connectWindow.Active = true;
+
+            plotline = new PlotlineManager(this);
             network = new NetworkManager(plotline);
             plotline.setNetwork(network);
+
+            eventManager = new EventManager(mouse, keyboard, plotline, connectWindow);
         }
 
         /// <summary>
@@ -93,6 +104,24 @@ namespace Plotliner
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             plotline.draw(spriteBatch);
+
+            if(connectWindow.Active)
+                connectWindow.draw(spriteBatch);
+        }
+
+        public void startServer()
+        {
+            network.createServer();
+            network.createClient("127.0.0.1");
+            plotline.Active = true;
+            connectWindow.Active = false;
+        }
+
+        public void connectToServer(string ip)
+        {
+            network.createClient(ip);
+            plotline.Active = true;
+            connectWindow.Active = false;
         }
 
         public KeyboardListener Keyboard
