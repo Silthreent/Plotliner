@@ -1,6 +1,7 @@
 ﻿using Lidgren.Network;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -53,7 +54,7 @@ namespace Plotliner.Manager
          * 6 = Int32
          *      Delete BoxConnection
          * 7 = Int32, Byte, Byte, Byte
-         *      Change TexBox Color
+         *      Change TextBox Color
         */
         void updateServer()
         {
@@ -101,12 +102,25 @@ namespace Plotliner.Manager
                         break;
                     case NetIncomingMessageType.StatusChanged:
                         Console.WriteLine(message.SenderConnection.Status);
+                        /*
+                        if(message.SenderConnection.Status == NetConnectionStatus.Connected)
+                        {
+                            plotline.savePlotline("debug/connecting");
+                            using(StreamReader file = new StreamReader(@"plotlines/debug/connecting.txt"))
+                            {
+                                var msg = server.CreateMessage();
+                                msg.Write(5);
+                                msg.Write(file.ReadToEnd());
+                                server.SendMessage(msg, message.SenderConnection, NetDeliveryMethod.ReliableOrdered);
+                            }
+                        }
+                        */
                         break;
                     case NetIncomingMessageType.DebugMessage:
                         Console.WriteLine(message.ReadString());
                         break;
                     default:
-                        Console.WriteLine("Unhandled message type");
+                        Console.WriteLine("Server: Unhandled message type");
                         break;
                 }
             }
@@ -163,7 +177,7 @@ namespace Plotliner.Manager
                         Console.WriteLine(message.ReadString());
                         break;
                     default:
-                        Console.WriteLine("Unhandled message type");
+                        Console.WriteLine("Client: Unhandled message type");
                         break;
                 }
             }
@@ -298,7 +312,6 @@ namespace Plotliner.Manager
             Console.WriteLine("Created Server");
         }
 
-        // TODO: Check what happens if you connect to a server?
         public void createClient(string ip, int port = 12345)
         {
             Console.WriteLine("Creating Client...");
@@ -322,6 +335,12 @@ namespace Plotliner.Manager
             client.Connect(host: ip, port: port);
 
             Console.WriteLine("Created Client");
+        }
+
+        public void shutdownServer()
+        {
+            server.Shutdown("Shutdown");
+            server = null;
         }
     }
 }

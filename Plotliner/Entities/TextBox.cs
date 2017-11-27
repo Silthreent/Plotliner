@@ -19,7 +19,7 @@ namespace Plotliner.Entities
         SpriteFont font;
         Texture2D rect;
         string text = "";
-        Color color = Color.Black;
+        Color borderColor = Color.Black;
         Point position;
         Point size;
 
@@ -36,20 +36,18 @@ namespace Plotliner.Entities
 
         public void draw(SpriteBatch spriteBatch, bool focus)
         {
+            spriteBatch.Draw(rect, new Rectangle(position - new Point(borderSize / 2, borderSize / 2), size + new Point(borderSize, borderSize)), borderColor);
+
             if(focus)
             {
-                spriteBatch.Draw(rect, new Rectangle(position - new Point(borderSize / 2, borderSize / 2), size + new Point(borderSize, borderSize)), color);
                 spriteBatch.Draw(rect, new Rectangle(position, size), Color.SlateGray);
-                spriteBatch.DrawString(font, text, position.ToVector2(), Color.Black);
             }
             else
             {
-                spriteBatch.Draw(rect, new Rectangle(position - new Point(borderSize / 2, borderSize / 2), size + new Point(borderSize, borderSize)), color);
                 spriteBatch.Draw(rect, new Rectangle(position, size), Color.White);
-                spriteBatch.DrawString(font, text, position.ToVector2(), Color.Black);
             }
 
-
+            spriteBatch.DrawString(font, text, position.ToVector2(), Color.Black);
         }
 
         public bool checkClick(Point mousePos)
@@ -73,7 +71,7 @@ namespace Plotliner.Entities
             file.WriteLine("@");
             file.WriteLine(position.X + "," + position.Y);
             file.WriteLine("%");
-            file.WriteLine(color.R + "," + color.G + "," + color.B);
+            file.WriteLine(borderColor.R + "," + borderColor.G + "," + borderColor.B);
         }
 
         public string Text
@@ -112,11 +110,11 @@ namespace Plotliner.Entities
         {
             get
             {
-                return color;
+                return borderColor;
             }
             set
             {
-                color = value;
+                borderColor = value;
             }
         }
     }

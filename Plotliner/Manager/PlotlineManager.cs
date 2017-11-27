@@ -154,26 +154,35 @@ namespace Plotliner.Manager
             lastAction = "Changed Box Color";
         }
 
-        void savePlotline(string fileName)
+        public void savePlotline(string fileName)
         {
             Console.WriteLine("Saving");
 
-            using(StreamWriter file = new StreamWriter(@"plotlines/" + fileName + ".txt"))
+            try
             {
-                foreach(TextBox box in textBoxes)
+                using(StreamWriter file = new StreamWriter(@"plotlines/" + fileName + ".txt"))
                 {
-                    box.save(file);
+                    foreach(TextBox box in textBoxes)
+                    {
+                        box.save(file);
+                    }
+                    foreach(BoxConnection connection in boxLines)
+                    {
+                        file.WriteLine("!");
+                        file.WriteLine(textBoxes.IndexOf(connection.Box1));
+                        file.WriteLine(textBoxes.IndexOf(connection.Box2));
+                    }
                 }
-                foreach(BoxConnection connection in boxLines)
-                {
-                    file.WriteLine("!");
-                    file.WriteLine(textBoxes.IndexOf(connection.Box1));
-                    file.WriteLine(textBoxes.IndexOf(connection.Box2));
-                }
+
+                lastAction = "Saved";
+                Console.WriteLine("Saved");
+            }
+            catch(Exception e)
+            {
+                lastAction = e.GetType().ToString();
+                Console.WriteLine(e.Message);
             }
 
-            lastAction = "Saved";
-            Console.WriteLine("Saved");
         }
 
         public void loadPlotline(string loadString)
@@ -184,12 +193,11 @@ namespace Plotliner.Manager
             focus = null;
             connecting = null;
             textBoxes.Clear();
+            boxLines.Clear();
 
             TextBox tempBox = null;
             string line = "";
 
-            try
-            {
                 using(StringReader file = new StringReader(loadString))
                 {
                     while((line = file.ReadLine()) != null)
@@ -222,16 +230,10 @@ namespace Plotliner.Manager
                         }
                     }
                 }
-            }
-            catch(FileNotFoundException e)
-            {
-                focus.Text = "ERROR: FILE NOT FOUND";
-                focus = null;
-                Console.WriteLine(e.Message);
-            }
 
-            lastAction = "Loaded";
-            Console.WriteLine("Loaded");
+                lastAction = "Loaded";
+                Console.WriteLine("Loaded");
+           
         }
 
         TextBox checkBoxClick()
@@ -331,6 +333,7 @@ namespace Plotliner.Manager
                         savePlotline(focus.Text);
                         return;
                     }
+
                     if(args.Key == Keys.L)
                     {
                         try
@@ -343,14 +346,18 @@ namespace Plotliner.Manager
                         }
                         catch(FileNotFoundException e)
                         {
+                            focus = null;
+                            lastAction = "Failed load: Plotline not found";
                             Console.WriteLine(e.Message);
                         }
+
                         return;
                     }
 
                     if(args.Key == Keys.C)
                     {
                         lastAction = "Connecting...";
+                        network.shutdownServer();
                         network.createClient(focus.Text);
                         lastAction = "Connected";
                     }
